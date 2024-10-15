@@ -1,7 +1,9 @@
-from flask import Flask, request, redirect, url_for, render_template, flash, send_file
+from flask import Flask, request, redirect, url_for, render_template, flash, send_file, make_response
 from extensions import db
 from models import UploadedFile
 import io
+from datetime import datetime
+import csv
 
 app = Flask(__name__)
 
@@ -30,8 +32,13 @@ def upload_file():
         category = request.form.get('category')
         file = request.files.get('file')
 
-        if not category:
-            flash('Kategori seçimi zorunludur.')
+        # Yeni alanlar
+        declaration_number = request.form.get('declaration_number')
+        customs_office_name = request.form.get('customs_office_name')
+        registration_date = request.form.get('registration_date')
+
+        if not category or not declaration_number or not customs_office_name or not registration_date:
+            flash('Tüm alanlar doldurulmalıdır.')
             return redirect(request.url)
 
         if not file or not allowed_file(file.filename):
@@ -51,7 +58,10 @@ def upload_file():
         uploaded_file = UploadedFile(
             filename=file.filename,
             category=category,
-            file_data=file_data
+            file_data=file_data,
+            declaration_number=declaration_number,
+            customs_office_name=customs_office_name,
+            registration_date=datetime.strptime(registration_date, '%Y-%m-%d')
         )
         db.session.add(uploaded_file)
         db.session.commit()
@@ -64,35 +74,48 @@ def upload_file():
 
 @app.route('/search', methods=['GET'])
 def search():
-    query = request.args.get('query')
     category = request.args.get('category')
-    results = []
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    declaration_number = request.args.get('declaration_number')
 
-    # Kullanıcıdan gelen dosya adı sorgusuna .pdf ekleyelim
-    if query:
-        query = query.strip() + '.pdf'
+    # Sorgu oluştur
+    query = UploadedFile.query
 
-    # Veritabanında kategori ve dosya adına göre arama yap
-    if category and query:  # Hem kategori hem de dosya adı girilmişse
-        query_result = UploadedFile.query.filter(
-            (UploadedFile.category == category) &
-            (UploadedFile.filename == query)  # Dosya adı tam eşleşme
-        ).all()
-    elif category:  # Sadece kategori seçilmişse
-        query_result = UploadedFile.query.filter_by(category=category).all()
-    elif query:  # Sadece dosya adı girilmişse
-        query_result = UploadedFile.query.filter_by(filename=query).all()  # Dosya adı tam eşleşme
-    else:
-        flash('Lütfen bir kategori seçin veya dosya adı girin.')
-        return redirect(url_for('index'))
+    # Beyanname numarasına göre arama
+    if declaration_number:
+        query = query.filter_by(declaration_number=declaration_number)
+
+    # Kategoriye göre arama
+    if category:
+        query = query.filter_by(category=category)
+
+    # Tarih aralığına göre arama
+    if start_date and end_date:
+        try:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+            query = query.filter(UploadedFile.registration_date.between(start_date, end_date))
+        except ValueError:
+            flash('Geçersiz tarih formatı.')
+            return redirect(url_for('index'))
+
+    # Sonuçları al
+    query_result = query.all()
 
     # Arama sonuçlarını listele
-    if query_result:
-        results = [(file.id, file.filename) for file in query_result]
+    results = [
+        (
+            file.id,
+            file.filename,
+            file.declaration_number,
+            file.customs_office_name,
+            file.registration_date.strftime('%d.%m.%Y') if file.registration_date else 'Boş',
+            file.category
+        ) for file in query_result
+    ]
 
     return render_template('index.html', results=results, category=category)
-
-
 
 
 
@@ -109,6 +132,36 @@ def download_file(file_id):
         )
     flash('Dosya bulunamadı.')
     return redirect(url_for('index'))
+
+# CSV dosyası indirme
+@app.route('/download_csv')
+def download_csv():
+    # Veritabanındaki tüm dosya bilgilerini al
+    files = UploadedFile.query.all()
+
+    # CSV dosyası hazırlama
+    csv_data = []
+    csv_data.append(['Beyanname Numarası', 'Gümrük Adı', 'Tescil Tarihi', 'Kategori'])
+
+    for file in files:
+        csv_data.append([
+            file.declaration_number if file.declaration_number else 'Boş',  # Beyanname numarası varsa yaz, yoksa 'Boş'
+            file.customs_office_name if file.customs_office_name else 'Boş',  # Gümrük adı varsa yaz, yoksa 'Boş'
+            file.registration_date.strftime('%d.%m.%Y') if file.registration_date else 'Boş',  # Tescil tarihi varsa formatla, yoksa 'Boş'
+            file.category if file.category else 'Boş'  # Kategori varsa yaz, yoksa 'Boş'
+        ])
+
+    # CSV dosyasını UTF-8 BOM ile oluştur
+    si = io.StringIO()
+    cw = csv.writer(si, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    cw.writerows(csv_data)
+    
+    output = make_response('\ufeff' + si.getvalue())  # UTF-8 BOM eklenmesi
+    output.headers["Content-Disposition"] = "attachment; filename=dosya_listesi.csv"
+    output.headers["Content-type"] = "text/csv; charset=utf-8"
+    return output
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

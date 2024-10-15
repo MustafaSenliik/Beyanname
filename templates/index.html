@@ -12,8 +12,14 @@
             <h1>Dosya Arama</h1>
             <a href="/upload" class="btn btn-success">Dosya Yükle</a>
         </div>
-        
+
+        <!-- Arama Formu -->
         <form action="/search" method="GET" class="mt-4">
+            <div class="mb-3">
+                <label for="declaration_number" class="form-label">Beyanname Numarası:</label>
+                <input type="text" class="form-control" name="declaration_number" placeholder="Beyanname numarası girin (isteğe bağlı)">
+            </div>
+            
             <div class="mb-3">
                 <label for="category" class="form-label">Kategori:</label>
                 <select class="form-select" name="category">
@@ -23,23 +29,55 @@
                     <option value="kambiyo">Kambiyo</option>
                 </select>
             </div>
+
             <div class="mb-3">
-                <label for="query" class="form-label">Dosya Adı:</label>
-                <input type="text" class="form-control" name="query" placeholder="Dosya adı girin (isteğe bağlı)">
+                <label for="start_date" class="form-label">Başlangıç Tarihi:</label>
+                <input type="date" class="form-control" name="start_date" >
             </div>
+
+            <div class="mb-3">
+                <label for="end_date" class="form-label">Bitiş Tarihi:</label>
+                <input type="date" class="form-control" name="end_date" >
+            </div>
+
             <button type="submit" class="btn btn-primary">Ara</button>
         </form>
 
+        <!-- CSV İndir Butonu -->
+        <div class="mt-3">
+            <a href="/download_csv" class="btn btn-secondary">Tüm Dosyaları CSV Olarak İndir</a>
+        </div>
+
+        <!-- Arama Sonuçları -->
         {% if results is not none %}
             {% if results %}
                 <h2 class="mt-5">Arama Sonuçları</h2>
-                <ul class="list-group mt-3">
-                    {% for file_id, filename in results %}
-                    <li class="list-group-item">
-                        <a href="{{ url_for('download_file', file_id=file_id) }}" target="_blank">{{ filename }}</a>
-                    </li>
+                <table class="table mt-3">
+                    <thead>
+                        <tr>
+                            <th>Dosya Adı</th>
+                            <th>Beyanname Numarası</th>
+                            <th>Gümrük Adı</th>
+                            <th>Tescil Tarihi</th>
+                            <th>Kategori</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file_id, filename, declaration_number, customs_office_name, registration_date, category in results %}
+                    <tr>
+                        <td>{{ filename }}</td>
+                        <td>{{ declaration_number }}</td>
+                        <td>{{ customs_office_name }}</td>
+                        <td>{{ registration_date }}</td>
+                        <td>{{ category }}</td> <!-- Yeni kategori alanı -->
+                        <td>
+                            <a href="{{ url_for('download_file', file_id=file_id) }}" target="_blank" class="btn btn-primary">İndir</a>
+                        </td>
+                    </tr>
                     {% endfor %}
-                </ul>
+
+                    </tbody>
+                </table>
             {% else %}
                 <p class="mt-4">Sonuç bulunamadı.</p>
             {% endif %}
