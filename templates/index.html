@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dosya Arama</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mt-5">
+            <h1>Dosya Arama</h1>
+            <a href="/upload" class="btn btn-success">Dosya Yükle</a>
+        </div>
+        
+        <form action="/search" method="GET" class="mt-4">
+            <div class="mb-3">
+                <label for="category" class="form-label">Kategori:</label>
+                <select class="form-select" name="category">
+                    <option value="" selected>Kategori Seçin (İsteğe Bağlı)</option>
+                    <option value="muhasebe">Muhasebe</option>
+                    <option value="ihracat">İhracat</option>
+                    <option value="kambiyo">Kambiyo</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="query" class="form-label">Dosya Adı:</label>
+                <input type="text" class="form-control" name="query" placeholder="Dosya adı girin (isteğe bağlı)">
+            </div>
+            <button type="submit" class="btn btn-primary">Ara</button>
+        </form>
+
+        {% if results is not none %}
+            {% if results %}
+                <h2 class="mt-5">Arama Sonuçları</h2>
+                <ul class="list-group mt-3">
+                    {% for file_id, filename in results %}
+                    <li class="list-group-item">
+                        <a href="{{ url_for('download_file', file_id=file_id) }}" target="_blank">{{ filename }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="mt-4">Sonuç bulunamadı.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
