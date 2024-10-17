@@ -21,10 +21,10 @@ with app.app_context():
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'pdf'}
 
-# Ana sayfa
+# Ana sayfayı upload sayfasına yönlendir
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return redirect(url_for('upload_file'))
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
@@ -71,6 +71,9 @@ def upload_file():
 
     return render_template('upload.html')
 
+@app.route('/search_page')
+def search_page():
+    return render_template('index.html')
 
 @app.route('/search', methods=['GET'])
 def search():
@@ -98,7 +101,7 @@ def search():
             query = query.filter(UploadedFile.registration_date.between(start_date, end_date))
         except ValueError:
             flash('Geçersiz tarih formatı.')
-            return redirect(url_for('index'))
+            return redirect(url_for('search_page'))
 
     # Sonuçları al
     query_result = query.all()
@@ -117,8 +120,6 @@ def search():
 
     return render_template('index.html', results=results, category=category)
 
-
-
 # Dosya indirme
 @app.route('/download/<int:file_id>')
 def download_file(file_id):
@@ -131,7 +132,7 @@ def download_file(file_id):
             download_name=file.filename
         )
     flash('Dosya bulunamadı.')
-    return redirect(url_for('index'))
+    return redirect(url_for('search_page'))
 
 # CSV dosyası indirme
 @app.route('/download_csv')
@@ -160,7 +161,6 @@ def download_csv():
     output.headers["Content-Disposition"] = "attachment; filename=dosya_listesi.csv"
     output.headers["Content-type"] = "text/csv; charset=utf-8"
     return output
-
 
 
 if __name__ == '__main__':
