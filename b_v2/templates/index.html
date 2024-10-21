@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dosya Arama</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mt-5">
+            <h1>Dosya Arama</h1>
+            <a href="/upload" class="btn btn-success">Dosya Yükle</a>
+        </div>
+
+        <!-- Arama Formu -->
+        <form action="/search" method="GET" class="mt-4">
+            <div class="row">
+                <!-- Kodu -->
+                <div class="col-md-6 mb-3">
+                    <label for="kodu" class="form-label">Kodu:</label>
+                    <input type="text" class="form-control" name="kodu" placeholder="Kodu girin (isteğe bağlı)">
+                </div>
+
+                <!-- Kategori -->
+                <div class="col-md-6 mb-3">
+                    <label for="kategori" class="form-label">Kategori:</label>
+                    <select class="form-control" name="kategori">
+                        <option value="">Kategori Seçin (isteğe bağlı)</option>
+                        <option value="İthalat">İthalat</option>
+                        <option value="İhracat">İhracat</option>
+                    </select>
+                </div>
+
+                <!-- İntaç Başlangıç Tarihi -->
+                <div class="col-md-6 mb-3">
+                    <label for="intac_start_date" class="form-label">İntaç Başlangıç Tarihi:</label>
+                    <input type="date" class="form-control" name="intac_start_date">
+                </div>
+
+                <!-- İntaç Bitiş Tarihi -->
+                <div class="col-md-6 mb-3">
+                    <label for="intac_end_date" class="form-label">İntaç Bitiş Tarihi:</label>
+                    <input type="date" class="form-control" name="intac_end_date">
+                </div>
+
+                <!-- GGB Başlangıç Tarihi -->
+                <div class="col-md-6 mb-3">
+                    <label for="ggb_start_date" class="form-label">GGB Başlangıç Tarihi:</label>
+                    <input type="date" class="form-control" name="ggb_start_date">
+                </div>
+
+                <!-- GGB Bitiş Tarihi -->
+                <div class="col-md-6 mb-3">
+                    <label for="ggb_end_date" class="form-label">GGB Bitiş Tarihi:</label>
+                    <input type="date" class="form-control" name="ggb_end_date">
+                </div>
+
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Ara</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- CSV İndir Butonu -->
+        <div class="mt-3">
+            <a href="/download_csv" class="btn btn-secondary">Tüm Dosyaları CSV Olarak İndir</a>
+        </div>
+
+        <!-- Arama Sonuçları -->
+        {% if results is not none %}
+            {% if results %}
+                <h2 class="mt-5">Arama Sonuçları</h2>
+                <table class="table mt-3">
+                    <thead>
+                        <tr>
+                            <th>Kodu</th>
+                            <th>Ürün Adı</th>
+                            <th>Cari Adı</th>
+                            <th>Cari Ülkesi</th>
+                            <th>Miktar</th>
+                            <th>Döviz Cinsi</th>
+                            <th>Kur</th>
+                            <th>Döviz Tutarı</th>
+                            <th>TL Tutarı</th>
+                            <th>Gümrük</th>
+                            <th>İntaç Tarihi</th>
+                            <th>GGB Tarihi</th>
+                            <th>Kategori</th>
+                            <th>İndir</th> <!-- ATR Belgesi için indirme sütunu -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file_id, kodu, urun_adi, cari_adi, cari_ulkesi, miktar, doviz_cinsi, kur, doviz_tutari, tl_tutari, gumruk, intac_tarihi, ggb_tarihi, kategori in results %}
+                        <tr>
+                            <td>{{ kodu }}</td>
+                            <td>{{ urun_adi }}</td>
+                            <td>{{ cari_adi }}</td>
+                            <td>{{ cari_ulkesi }}</td>
+                            <td>{{ miktar }}</td>
+                            <td>{{ doviz_cinsi }}</td>
+                            <td>{{ kur }}</td>
+                            <td>{{ doviz_tutari }}</td>
+                            <td>{{ tl_tutari }}</td>
+                            <td>{{ gumruk }}</td>
+                            <td>{{ intac_tarihi }}</td>
+                            <td>{{ ggb_tarihi }}</td>
+                            <td>{{ kategori }}</td> <!-- Kategori ekleniyor -->
+                            <td>
+                                <a href="{{ url_for('download_file', file_id=file_id) }}" target="_blank" class="btn btn-primary">İndir</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="mt-4">Sonuç bulunamadı.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
