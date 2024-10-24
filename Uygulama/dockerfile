@@ -1,0 +1,16 @@
+# 1. Base image olarak Python 3.9 kullanıyoruz
+FROM python:3.9-slim
+
+# 2. Uygulama dosyalarını container içine kopyalıyoruz
+WORKDIR /app
+COPY . /app
+
+# 3. Gereksinimleri yüklüyoruz
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 4. Uygulamayı başlatıyoruz
+CMD ["python", "app.py"]
+
+# wait-for-it.sh betiğini kopyalayıp çalıştırılabilir hale getiriyoruz
+COPY wait-for-it.sh /app/
+RUN chmod +x /app/wait-for-it.sh
