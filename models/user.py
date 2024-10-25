@@ -1,8 +1,8 @@
 from extensions import db
+from datetime import datetime
+from pytz import timezone
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
-import pytz
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
@@ -12,7 +12,7 @@ class User(db.Model, UserMixin):
     rol = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     sifre = db.Column(db.String(255), nullable=False)
-    kayit_tarihi = db.Column(db.DateTime, default=lambda: datetime.now(pytz.timezone('Europe/Istanbul'))) 
+    kayit_tarihi = db.Column(db.DateTime, default=lambda: datetime.now(timezone('Europe/Istanbul')))
 
     def set_password(self, password):
         self.sifre = generate_password_hash(password)

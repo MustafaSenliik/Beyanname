@@ -1,64 +1,56 @@
-from models import BeyannameKayitlari
+from models import BeyannameKayitlari, Log
+from extensions import db
+from flask import flash, send_file
+import io
 from datetime import datetime
 
-def upload_file_service(kodu, urun_adi, cari_adi, atr_belgesi, **form_data):
-    cari_ulkesi = form_data.get('cari_ulkesi')
-    miktar = form_data.get('miktar')
-    doviz_cinsi = form_data.get('doviz_cinsi')
-    kur = form_data.get('kur')
-    doviz_tutari = form_data.get('doviz_tutari')
-    tl_tutari = form_data.get('tl_tutari')
-    gumruk = form_data.get('gumruk')
-    intac_tarihi = form_data.get('intac_tarihi')
-    ggb_tarihi = form_data.get('ggb_tarihi')
-    kategori = form_data.get('kategori')
+def upload_file_service(request, current_user):
+    kodu = request.form.get('kodu')
+    urun_adi = request.form.get('urun_adi')
+    # Diğer form alanları...
 
+    # Dosya var mı kontrolü
     existing_record = BeyannameKayitlari.query.filter_by(kodu=kodu).first()
     if existing_record:
-        return None  # Mevcut kayıt hatası
+        flash(f"{kodu} kodlu bir dosya zaten mevcut.", 'danger')
+        return False
 
-    # Veritabanına yeni kayıt ekleme
-    file_data = atr_belgesi.read()
+    # Dosya yükleme işlemi
+    file_data = request.files['pdf_dosyasi'].read()
     beyanname = BeyannameKayitlari(
         kodu=kodu,
         urun_adi=urun_adi,
-        cari_adi=cari_adi,
-        cari_ulkesi=cari_ulkesi,
-        miktar=miktar,
-        doviz_cinsi=doviz_cinsi,
-        kur=kur,
-        doviz_tutari=doviz_tutari,
-        tl_tutari=tl_tutari,
-        gumruk=gumruk,
-        intac_tarihi=datetime.strptime(intac_tarihi, '%Y-%m-%d') if intac_tarihi else None,
-        ggb_tarihi=datetime.strptime(ggb_tarihi, '%Y-%m-%d') if ggb_tarihi else None,
-        atr_belgesi=file_data,
-        kategori=kategori
+        # Diğer alanlar...
+        atr_belgesi=file_data
     )
-    return beyanname
+    db.session.add(beyanname)
+    db.session.commit()
 
-def delete_file_service(file, kodu):
+    # Log kaydı ekleme
+    log = Log(user_id=current_user.id, action="Dosya Yüklendi", details=f"{kodu} kodlu dosya yüklendi.")
+    db.session.add(log)
+    db.session.commit()
+    return True
+
+def delete_file_service(file_id, current_user):
+    file = BeyannameKayitlari.query.get(file_id)
     if file:
-        return True
-    return False
+        db.session.delete(file)
+        db.session.commit()
 
-def download_file_service(file):
-    file_data = io.BytesIO(file.atr_belgesi)
-    file_name = f"{file.kodu}.pdf"
-    return file_data, file_name
+        # Log kaydı oluşturma
+        log = Log(user_id=current_user.id, action="Dosya Silindi", details=f"{file.kodu} kodlu dosya silindi.")
+        db.session.add(log)
+        db.session.commit()
 
-def prepare_csv(files):
-    csv_data = []
-    csv_data.append([
-        'Kodu', 'Ürün Adı', 'Cari Adı', 'Cari Ülkesi', 'Miktar', 'Döviz Cinsi', 'Kur',
-        'DÖVİZ TUTARI', 'TL TUTARI', 'Gümrük', 'İntaç Tarihi', 'GGB Tarihi', 'Kategori', 'Eklenme Tarihi'
-    ])
-    for file in files:
-        csv_data.append([
-            file.kodu, file.urun_adi, file.cari_adi, file.cari_ulkesi, file.miktar, file.doviz_cinsi,
-            file.kur, file.doviz_tutari, file.tl_tutari, file.gumruk,
-            file.intac_tarihi.strftime('%d.%m.%Y') if file.intac_tarihi else '',
-            file.ggb_tarihi.strftime('%d.%m.%Y') if file.ggb_tarihi else '',
-            file.kategori, file.created_at.strftime('%d.%m.%Y %H:%M:%S') if file.created_at else ''
-        ])
-    return csv_data
+def download_file_service(file_id):
+    file = BeyannameKayitlari.query.get(file_id)
+    if file:
+        return send_file(
+            io.BytesIO(file.atr_belgesi),
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f"{file.kodu}.pdf"
+        )
+    flash('Dosya bulunamadı.', 'danger')
+    return None

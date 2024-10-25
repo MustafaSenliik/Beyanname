@@ -1,17 +1,19 @@
-from flask import render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, flash, redirect, url_for
 from flask_login import login_required, current_user
-from extensions import db
-from models.log import Log
+from models import Log
+from services.log_service import fetch_logs_by_role
 
+# Blueprint tanımlaması
+log_bp = Blueprint('log', __name__)
+
+@log_bp.route('/logs')
 @login_required
 def view_logs():
-    # Only 'patron', 'müdür', or 'müdür_yardımcısı' roles can view logs
+    # Sadece patron, müdür ve müdür yardımcısı rolleri görebilir
     if current_user.rol not in ['patron', 'müdür', 'müdür_yardımcısı']:
-        flash('Bu işlemi gerçekleştirmek için yetkiniz yok.', 'danger')
-        return redirect(url_for('index'))
+        flash('Log kayıtlarına erişim yetkiniz yok.', 'danger')
+        return redirect(url_for('file.upload_file'))
 
-    # Fetch logs from the database
-    logs = Log.query.order_by(Log.timestamp.desc()).all()
-
-    # Render logs page
+    # Log kayıtlarını kullanıcı rolüne göre getir
+    logs = fetch_logs_by_role(current_user.rol)
     return render_template('logs.html', logs=logs)
