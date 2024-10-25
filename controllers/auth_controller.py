@@ -50,11 +50,11 @@ def register():
 def login():
     if request.method == 'POST':
         # Formdan email ve şifre alınıyor
-        email = request.form.get('email')
+        ad_soyad = request.form.get('ad_soyad')
         sifre = request.form.get('password')
 
         # Kullanıcı veritabanında bulunuyor mu kontrol ediyoruz
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter_by(ad_soyad=ad_soyad).first()
         if user and user.check_password(sifre):
             login_user(user)
             flash('Giriş başarılı!', 'success')

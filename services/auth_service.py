@@ -25,8 +25,8 @@ def register_user(name, email, password, role):
         db.session.rollback()  # Hata durumunda rollback
         return False
 
-def validate_login(email, password):
-    user = User.query.filter_by(email=email).first()
+def validate_login(ad_soyad, password):
+    user = User.query.filter_by(ad_soyad=ad_soyad).first()
     if user and user.check_password(password):
         return user
     return None
