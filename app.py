@@ -43,6 +43,11 @@ app.register_blueprint(log_bp, url_prefix='/logs')  # Log işlemleri için bluep
 with app.app_context():
     db.create_all()
 
+# Uygulama bağlamı sonlandığında veritabanı bağlantısını kapatma
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db.session.remove()
+
 # Uygulamayı çalıştırma
 if __name__ == '__main__':
     app.run(debug=True)
