@@ -1,7 +1,9 @@
 from flask import Flask, redirect, url_for
+from flask_jwt_extended import JWTManager
 from extensions import db
 from flask_login import LoginManager, current_user
 from models import User
+import os
 
 # Controller Blueprint'lerini yükleyin
 from controllers.auth_controller import auth_bp
@@ -13,6 +15,10 @@ from controllers.log_controller import log_bp
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
 
+# JWT ayarlarını yapın
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'your_jwt_secret_key')  # JWT için gizli anahtar
+jwt = JWTManager(app)
+
 # Uzantıları başlat
 db.init_app(app)
 
@@ -21,12 +27,11 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'  # Giriş yapma sayfası
 
-# Ana sayfa rotası
 @app.route('/')
 def index():
-    if current_user.is_authenticated:  # Eğer kullanıcı giriş yapmışsa
-        return redirect(url_for('file.upload_file'))  # Dosya yükleme sayfasına yönlendirme
-    return redirect(url_for('auth.login'))  # Giriş sayfasına yönlendirme
+    if current_user.is_authenticated:
+        return redirect(url_for('file.upload_file'))
+    return redirect(url_for('auth.login'))
 
 # Kullanıcı yükleme fonksiyonu
 @login_manager.user_loader

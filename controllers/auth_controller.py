@@ -1,7 +1,10 @@
-from flask import Blueprint, request, redirect, url_for, flash, render_template
+from flask import Blueprint, request, redirect, url_for, flash, render_template, jsonify
 from flask_login import login_user, logout_user, login_required
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from models import User
 from extensions import db
+from werkzeug.security import check_password_hash
+import datetime
 
 # Blueprint tanımlaması
 auth_bp = Blueprint('auth', __name__)
@@ -9,7 +12,6 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        # Form verilerini alıyoruz
         ad_soyad = request.form.get('name')
         email = request.form.get('email')
         sifre = request.form.get('password')
@@ -20,13 +22,6 @@ def register():
         if sifre != sifre_tekrar:
             flash('Şifreler uyuşmuyor!', 'danger')
             return redirect(url_for('auth.register'))
-
-        # Patron kayıt sınırı kontrolü
-        if rol == 'patron':
-            patron_sayisi = User.query.filter_by(rol='patron').count()
-            if patron_sayisi >= 3:
-                flash('Zaten 3 patron kayıtlı. Başka patron kaydı yapılamaz.', 'danger')
-                return redirect(url_for('auth.register'))
 
         # Emailin zaten kayıtlı olup olmadığını kontrol ediyoruz
         user = User.query.filter_by(email=email).first()
@@ -49,16 +44,19 @@ def register():
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # Formdan email ve şifre alınıyor
         ad_soyad = request.form.get('ad_soyad')
         sifre = request.form.get('password')
 
-        # Kullanıcı veritabanında bulunuyor mu kontrol ediyoruz
         user = User.query.filter_by(ad_soyad=ad_soyad).first()
         if user and user.check_password(sifre):
+            # Kullanıcıyı oturum açmış olarak işaretle
             login_user(user)
+
+            # JWT token oluştur
+            access_token = create_access_token(identity=user.id)
             flash('Giriş başarılı!', 'success')
-            return redirect(url_for('file.upload_file'))  # Dosya yükleme sayfasına yönlendirme
+            return redirect(url_for('file.upload_file'))  # Yükleme sayfasına yönlendirme
+
         else:
             flash('Geçersiz giriş bilgileri!', 'danger')
 
