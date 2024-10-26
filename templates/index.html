@@ -75,6 +75,7 @@
         <div class="d-flex justify-content-between align-items-center">
             <h1>Dosya Arama</h1>
             <div>
+                <span class="me-3">Hoş geldiniz, {{ current_user.ad_soyad }}!</span>
                 <a href="{{ url_for('file.upload_file') }}" class="btn btn-success me-2">Dosya Yükle</a>
                 <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary">Çıkış Yap</a>
             </div>
