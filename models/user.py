@@ -13,6 +13,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(100), unique=True, nullable=False)
     sifre = db.Column(db.String(255), nullable=False)
     kayit_tarihi = db.Column(db.DateTime, default=lambda: datetime.now(timezone('Europe/Istanbul')))
+    password_changed = db.Column(db.Boolean, default=False)
 
     def set_password(self, password):
         self.sifre = generate_password_hash(password)

@@ -1,5 +1,5 @@
 from flask import Blueprint, request, redirect, url_for, flash, render_template, jsonify
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from models import User
 from extensions import db
@@ -44,25 +44,45 @@ def register():
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        ad_soyad = request.form.get('ad_soyad')
+        email = request.form.get('email')
         sifre = request.form.get('password')
 
-        user = User.query.filter_by(ad_soyad=ad_soyad).first()
-        if user and user.sifre == sifre:  # `password` yerine `sifre` özniteliğini kullanın
-            # Kullanıcıyı oturum açmış olarak işaretle
+        user = User.query.filter_by(email=email).first()
+        if user and user.sifre == sifre:
             login_user(user)
-
-            # JWT token oluştur
-            access_token = create_access_token(identity=user.id)
+            # Şifre değiştirme durumu kontrolü
+            if not user.password_changed:
+                flash("Lütfen kendinize yeni bir şifre belirleyin.", "warning")
+                return redirect(url_for('auth.change_password'))
+            
             flash('Giriş başarılı!', 'success')
-            return redirect(url_for('file.upload_file'))  # Yükleme sayfasına yönlendirme
+            return redirect(url_for('file.upload_file'))
 
         else:
             flash('Geçersiz giriş bilgileri!', 'danger')
 
     return render_template('login.html')
 
+@auth_bp.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    if request.method == 'POST':
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
 
+        if new_password != confirm_password:
+            flash('Şifreler uyuşmuyor!', 'danger')
+            return redirect(url_for('auth.change_password'))
+
+        # Şifreyi güncelle ve password_changed alanını True yap
+        current_user.sifre = new_password  # Hashleme eklenebilir
+        current_user.password_changed = True
+        db.session.commit()
+
+        flash('Şifreniz başarıyla güncellendi!', 'success')
+        return redirect(url_for('file.upload_file'))
+
+    return render_template('change_password.html')
 
 @auth_bp.route('/logout')
 @login_required
