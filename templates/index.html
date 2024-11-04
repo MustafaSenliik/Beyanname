@@ -165,7 +165,7 @@
                             <th>Kategori</th>
                             <th>Eklenme Tarihi</th>
                             <th>İndir</th>
-                            {% if current_user.rol in ['patron', 'müdür', 'müdür_yardımcısı'] %}
+                            {% if current_user.rol in ['patron', 'müdür', 'müdür_yardımcısı','admin'] %}
                             <th>Sil</th> <!-- Sadece yetkili kişiler için silme butonu görünür olacak -->
                             {% endif %}
                         </tr>
@@ -190,7 +190,7 @@
                             <td>
                                 <a href="{{ url_for('file.download_file', file_id=file.id) }}" class="btn btn-primary">İndir</a>
                             </td>
-                            {% if current_user.rol in ['patron', 'müdür', 'müdür_yardımcısı'] %}
+                            {% if current_user.rol in ['patron', 'müdür', 'müdür_yardımcısı','admin'] %}
                             <td>
                                 <form action="{{ url_for('file.delete_file', file_id=file.id) }}" method="POST" style="display: inline;">
                                     <button type="submit" class="btn btn-danger" onclick="return confirmDelete()">Sil</button>
