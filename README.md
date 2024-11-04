@@ -105,9 +105,18 @@ class Config:
     JWT_SECRET_KEY = 'jwt_gizli_anahtar'
 ```
 ## 🧑‍💻 Kullanım
-Yönetici Paneli
-Kullanıcı Yönetimi: Yeni kullanıcı ekleme, silme ve yetki değiştirme işlemlerini buradan yapabilirsiniz.
-Dosya Yönetimi: Dosya yükleme, arama ve silme işlemlerini gerçekleştirebilirsiniz.
+
+- **Kayıt İşlemi** : /auth/register adresine giderek 1 kayıt oluşturalım.
+
+- **Sisteme Giriş** : Login sayfası üzerinden giriş yapalım.
+
+- **Dosya Yönetimi** : Dosya yükleme sayfasından dosya yüklenebilir, arama sayfasından aranablir, indirilebilir veya silinebilir.
+
+- **Rol Yönetimi** : Müdür yardımcı ve üzeri rollerde admin panel butonu gözükecektir.
+
+- **Kullanıcı Yönetimi** : Admin panelden kullanıcı ekleme, silme, yetkilendirme, log kayıtlarını görüntüleme, istatisik ekranı gibi sayfalar olacak oradan işlemler gerçekleştirebilirsiniz.
+
+- **Kullanıcı Silme** : Kullanıcı silme işlemi sadece 'admin' rolü için görünür olacaktır.
 
 ## 🛠️ Hata Ayıklama
 Sanal Ortam: Sanal ortamın (venv) aktif olduğundan emin olun.
