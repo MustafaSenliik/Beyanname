@@ -45,7 +45,7 @@ Bu proje, kullanıcıların dosya yüklemesi, yönetmesi ve detaylı loglama yap
 - **pip** (Python paket yöneticisi)
 - **Git** (Opsiyonel, projeyi klonlamak için)
 
-### Bağımlılıkların Yüklenmesi
+## Bağımlılıkların Yüklenmesi
 Projeyi Klonlayın:
 ```bash
 git clone https://github.com/kullaniciadi/proje-adi.git
@@ -88,13 +88,13 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = 'jwt_gizli_anahtar'
 
-🧑‍💻 Kullanım
+## 🧑‍💻 Kullanım
 Yönetici Paneli
 Kullanıcı Yönetimi: Yeni kullanıcı ekleme, silme ve yetki değiştirme işlemlerini buradan yapabilirsiniz.
 Dosya Yönetimi: Dosya yükleme, arama ve silme işlemlerini gerçekleştirebilirsiniz.
 Şifre Değiştirme: İlk girişte kullanıcıya şifre belirleme imkanı verilir, ardından kullanıcılar şifrelerini değiştirebilir.
 
-🛠️ Hata Ayıklama
+## 🛠️ Hata Ayıklama
 Sanal Ortam: Sanal ortamın (venv) aktif olduğundan emin olun.
 
 Bağımlılıkların Güncellenmesi: Yeni bir modül eklediyseniz pip freeze > requirements.txt komutuyla requirements.txt dosyanızı güncelleyin.
@@ -108,7 +108,7 @@ Port Sorunları: Proje bir port üzerinde çalışıyorsa başka bir port ile ç
 
 flask run --port=5001
 
-🤝 Katkıda Bulunma
+## 🤝 Katkıda Bulunma
 
 Bu projeyi forklayın.
 Yeni bir dal (branch) oluşturun: git checkout -b özellik-adi.
@@ -116,6 +116,6 @@ Değişikliklerinizi işleyin: git commit -m 'Özellik ekle'.
 Dalınıza push edin: git push origin özellik-adi.
 Bir Pull Request gönderin.
 
-📜 Lisans
+## 📜 Lisans
 Bu proje MIT Lisansı altında lisanslanmıştır.
 
