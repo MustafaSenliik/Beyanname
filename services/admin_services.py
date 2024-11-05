@@ -13,10 +13,11 @@ def get_recent_uploads(limit=5):
 
     return BeyannameKayitlari.query.order_by(BeyannameKayitlari.created_at.desc()).limit(limit).all()
 
-# Tüm kullanıcıları getiren fonksiyon
+# Yalnızca aktif (is_deleted=False) kullanıcıları getiren fonksiyon
 def get_all_users():
-    """Veritabanından tüm kullanıcıları getirir."""
-    return User.query.all()
+    """Veritabanından yalnızca aktif kullanıcıları getirir."""
+    return User.query.filter_by(is_deleted=False).all()
+
 
 # Tüm log kayıtlarını getiren fonksiyon
 def get_all_logs():
@@ -59,7 +60,7 @@ def get_logs_filtered(start_date=None, end_date=None, user_name=None):
 # Toplam kullanıcı sayısını döndürür
 def get_users_count():
     """Toplam kullanıcı sayısını döndürür."""
-    return User.query.count()
+    return User.query.filter_by(is_deleted=False).count()
 
 # Toplam log kaydı sayısını döndürür
 def get_logs_count():
@@ -84,7 +85,7 @@ def delete_user(user_id):
 # Kullanıcı rolünü güncelleme fonksiyonu
 def update_user_rol(user_id, new_rol):
     """Belirtilen kullanıcının rolünü günceller."""
-    user = User.query.get(user_id)
+    user = User.query.filter_by(id=user_id, is_deleted=False).first()
     if user:
         user.rol = new_rol
         db.session.commit()

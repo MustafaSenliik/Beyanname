@@ -10,23 +10,26 @@ import pytz
 
 admin_blueprint = Blueprint('admin', __name__, url_prefix='/admin')
 
-# Admin giriş ekranı
 @admin_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         ad_soyad = request.form.get('ad_soyad')
         password = request.form.get('password')
-        user = User.query.filter_by(ad_soyad=ad_soyad).first()
         
-        if user and check_password_hash(user.sifre, password) and user.rol in ['müdür', 'patron', 'müdür_yardımcısı','admin']:
+        # Kullanıcı sorgulama: Hem `ad_soyad` hem de `is_deleted=False` kontrolü
+        user = User.query.filter_by(ad_soyad=ad_soyad, is_deleted=False).first()
+        
+        # Kullanıcı şifresi ve rol kontrolü
+        if user and check_password_hash(user.sifre, password) and user.rol in ['müdür', 'patron', 'müdür_yardımcısı', 'admin']:
             login_user(user)
             flash('Başarıyla giriş yaptınız.', 'success')
             return redirect(url_for('admin.dashboard'))
         else:
-            flash('Geçersiz giriş bilgileri veya yetkisiz kullanıcı.', 'danger')
+            flash('Geçersiz giriş bilgileri, yetkisiz kullanıcı veya kullanıcı silinmiş.', 'danger')
             return redirect(url_for('admin.login'))
     
     return render_template('admin/admin_login.html')
+
 
 # admin_controller.py dosyanızda dashboard endpoint'ini güncelleyin
 @admin_blueprint.route('/dashboard')
@@ -87,19 +90,20 @@ def delete_user(user_id):
         flash("Bu işlemi sadece admin yapabilir.", "danger")
         return redirect(url_for('admin.delete_user_page'))
     
-    # Eğer istek `POST` ise silme işlemini yap
+    # Eğer istek `POST` ise yumuşak silme işlemini yap
     if request.method == 'POST':
-        db.session.delete(user)
+        user.is_deleted = True  # Kullanıcıyı yumuşak silme işlemi
         db.session.commit()
         flash(f"{user.ad_soyad} başarıyla silindi.", "success")
         return redirect(url_for('admin.delete_user_page'))
+    
     return redirect(url_for('admin.delete_user_page'))
 
 # Page listing all users for deletion
 @admin_blueprint.route('/delete-user-page', methods=['GET'])
 @login_required
 def delete_user_page():
-    users = User.query.all()
+    users = User.query.filter_by(is_deleted=False).all()
     return render_template('admin/delete_user.html', users=users)
 
 # Kullanıcı silme işlemini onaylama
@@ -205,6 +209,6 @@ def authorize_user():
         return redirect(url_for('admin.authorize_user'))
 
     # Tüm kullanıcıları getir
-    users = User.query.all()
+    users = User.query.filter_by(is_deleted=False).all()
     return render_template('admin/authorize_user.html', users=users, ROLE_HIERARCHY=ROLE_HIERARCHY)
 

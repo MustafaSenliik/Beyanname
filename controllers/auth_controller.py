@@ -47,7 +47,7 @@ def login():
         email = request.form.get('email')
         sifre = request.form.get('password')
 
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter_by(email=email, is_deleted=False).first()
         if user and user.sifre == sifre:
             login_user(user)
             # Şifre değiştirme durumu kontrolü
@@ -59,7 +59,7 @@ def login():
             return redirect(url_for('file.upload_file'))
 
         else:
-            flash('Geçersiz giriş bilgileri!', 'danger')
+            flash('Geçersiz giriş bilgileri veya kullanıcı silinmiş!', 'danger')
 
     return render_template('login.html')
 

@@ -14,6 +14,11 @@ class User(db.Model, UserMixin):
     sifre = db.Column(db.String(255), nullable=False)
     kayit_tarihi = db.Column(db.DateTime, default=lambda: datetime.now(timezone('Europe/Istanbul')))
     password_changed = db.Column(db.Boolean, default=False)
+    is_deleted = db.Column(db.Boolean, default=False)
+
+    def is_active(self):
+        # Kullanıcının aktif olup olmadığını kontrol eder
+        return not self.is_deleted
 
     def set_password(self, password):
         self.sifre = generate_password_hash(password)
