@@ -82,20 +82,21 @@ def add_user():
 def delete_user(user_id):
     user = User.query.get_or_404(user_id)
     
-    # Check if the current user is an admin
+    # Kullanıcı admin değilse yetkisiz olduğu mesajını verip yönlendirme yap
     if current_user.rol != 'admin':
         flash("Bu işlemi sadece admin yapabilir.", "danger")
         return redirect(url_for('admin.delete_user_page'))
     
-    # If the request is POST, proceed with deletion
+    # Eğer istek `POST` ise silme işlemini yap
     if request.method == 'POST':
         db.session.delete(user)
         db.session.commit()
         flash(f"{user.ad_soyad} başarıyla silindi.", "success")
         return redirect(url_for('admin.delete_user_page'))
     
-    # Render a confirmation page if request is GET
-    return render_template('admin/delete_user_confirm.html', user=user)
+    # GET isteği için onay sayfasına yönlendirme yapabilirsiniz veya direkt silme sayfasına dönebilir
+    flash("Kullanıcıyı silmek için 'Sil' butonuna basın.", "info")
+    return redirect(url_for('admin.delete_user_page'))
 
 # Page listing all users for deletion
 @admin_blueprint.route('/delete-user-page', methods=['GET'])
