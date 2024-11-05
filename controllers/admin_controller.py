@@ -93,9 +93,6 @@ def delete_user(user_id):
         db.session.commit()
         flash(f"{user.ad_soyad} başarıyla silindi.", "success")
         return redirect(url_for('admin.delete_user_page'))
-    
-    # GET isteği için onay sayfasına yönlendirme yapabilirsiniz veya direkt silme sayfasına dönebilir
-    flash("Kullanıcıyı silmek için 'Sil' butonuna basın.", "info")
     return redirect(url_for('admin.delete_user_page'))
 
 # Page listing all users for deletion
