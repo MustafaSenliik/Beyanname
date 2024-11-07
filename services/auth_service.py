@@ -3,11 +3,6 @@ from flask_jwt_extended import create_access_token
 from models import User
 from extensions import db
 
-from flask import flash
-from flask_jwt_extended import create_access_token
-from models import User
-from extensions import db
-
 def register_user(name, email, password, role):
     # Patron sayısını kontrol et
     if role == 'patron':
