@@ -4,6 +4,7 @@ from extensions import db
 from flask_login import LoginManager, current_user
 from models import User
 import os
+from datetime import datetime, timedelta
 
 # Controller Blueprint'lerini yükleyin
 from controllers.auth_controller import auth_bp
@@ -14,6 +15,7 @@ from controllers.admin_controller import admin_blueprint
 # Uygulamayı başlatma
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 # JWT ayarlarını yapın
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'your_jwt_secret_key')  # JWT için gizli anahtar

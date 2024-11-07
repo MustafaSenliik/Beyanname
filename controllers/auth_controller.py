@@ -1,10 +1,10 @@
-from flask import Blueprint, request, redirect, url_for, flash, render_template, jsonify
+from flask import Blueprint, request, redirect, url_for, flash, render_template, jsonify, session
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from models import User
 from extensions import db
 from werkzeug.security import check_password_hash
-import datetime
+from datetime import datetime, timedelta
 
 # Blueprint tanımlaması
 auth_bp = Blueprint('auth', __name__)
@@ -40,6 +40,13 @@ def register():
 
     return render_template('register.html')
 
+@auth_bp.route('/check_session', methods=['GET'])
+@login_required
+def check_session():
+    if current_user.is_authenticated:
+        return jsonify({'isValid': True})
+    else:
+        return jsonify({'isValid': False})
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -49,12 +56,16 @@ def login():
 
         user = User.query.filter_by(email=email, is_deleted=False).first()
         if user and user.sifre == sifre:
-            login_user(user)
+            # Oturumu kalıcı hale getir
+            session.permanent = True
+
+            login_user(user, remember=True)
+
             # Şifre değiştirme durumu kontrolü
             if not user.password_changed:
                 flash("Lütfen kendinize yeni bir şifre belirleyin.", "warning")
                 return redirect(url_for('auth.change_password'))
-            
+
             flash('Giriş başarılı!', 'success')
             return redirect(url_for('file.upload_file'))
 
@@ -84,7 +95,7 @@ def change_password():
 
     return render_template('change_password.html')
 
-@auth_bp.route('/logout')
+@auth_bp.route('/logout', methods=['GET', 'POST'])
 @login_required
 def logout():
     logout_user()
