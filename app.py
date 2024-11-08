@@ -1,9 +1,10 @@
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, render_template
 from flask_jwt_extended import JWTManager
 from extensions import db
 from flask_login import LoginManager, current_user
 from models import User
 import os
+from datetime import timedelta
 
 # Controller Blueprint'lerini yükleyin
 from controllers.auth_controller import auth_bp
@@ -53,6 +54,18 @@ with app.app_context():
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db.session.remove()
+
+@app.errorhandler(403)
+def forbidden_error(error):
+    return render_template('errors/403.html'), 403
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('errors/404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return render_template('errors/500.html'), 500
 
 # Uygulamayı çalıştırma
 if __name__ == '__main__':
