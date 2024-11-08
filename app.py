@@ -1,10 +1,11 @@
-from flask import Flask, redirect, url_for, render_template
+from flask import Flask, redirect, url_for, render_template, Response
 from flask_jwt_extended import JWTManager
 from extensions import db
 from flask_login import LoginManager, current_user
 from models import User
 import os
 from datetime import timedelta
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 # Controller Blueprint'lerini yükleyin
 from controllers.auth_controller import auth_bp
@@ -29,6 +30,10 @@ db.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'  # Giriş yapma sayfası
+
+@app.route('/metrics')
+def metrics():
+    return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
 
 @app.route('/')
 def index():

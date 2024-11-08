@@ -1,16 +1,17 @@
 from flask import Blueprint, request, redirect, url_for, flash, render_template, jsonify, session
 from flask_login import login_user, logout_user, login_required, current_user
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from models import User
 from extensions import db
-from werkzeug.security import check_password_hash
-from datetime import datetime, timedelta
+from datetime import timedelta
+from services.metrics_service import increment_request_count, track_request_latency, increment_login_attempt
 
 # Blueprint tanımlaması
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
+@track_request_latency('/register')  # Gecikme süresini izler
 def register():
+    increment_request_count('/register')  # İstek sayısını artırır
     if request.method == 'POST':
         ad_soyad = request.form.get('name')
         email = request.form.get('email')
@@ -42,14 +43,18 @@ def register():
 
 @auth_bp.route('/check_session', methods=['GET'])
 @login_required
+@track_request_latency('/check_session')  # Gecikme süresini izler
 def check_session():
+    increment_request_count('/check_session')  # İstek sayısını artırır
     if current_user.is_authenticated:
         return jsonify({'isValid': True})
     else:
         return jsonify({'isValid': False})
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
+@track_request_latency('/login')  # Gecikme süresini izler
 def login():
+    increment_request_count('/login')  # İstek sayısını artırır
     if request.method == 'POST':
         email = request.form.get('email')
         sifre = request.form.get('password')
@@ -58,8 +63,8 @@ def login():
         if user and user.sifre == sifre:
             # Oturumu kalıcı hale getir
             session.permanent = True
-
             login_user(user, remember=True)
+            increment_login_attempt(success=True)  # Başarılı giriş sayısını artırır
 
             # Şifre değiştirme durumu kontrolü
             if not user.password_changed:
@@ -70,13 +75,16 @@ def login():
             return redirect(url_for('file.upload_file'))
 
         else:
+            increment_login_attempt(success=False)  # Başarısız giriş sayısını artırır
             flash('Geçersiz giriş bilgileri veya kullanıcı silinmiş!', 'danger')
 
     return render_template('login.html')
 
 @auth_bp.route('/change-password', methods=['GET', 'POST'])
 @login_required
+@track_request_latency('/change-password')  # Gecikme süresini izler
 def change_password():
+    increment_request_count('/change-password')  # İstek sayısını artırır
     if request.method == 'POST':
         new_password = request.form.get('new_password')
         confirm_password = request.form.get('confirm_password')
@@ -97,7 +105,9 @@ def change_password():
 
 @auth_bp.route('/logout', methods=['GET', 'POST'])
 @login_required
+@track_request_latency('/logout')  # Gecikme süresini izler
 def logout():
+    increment_request_count('/logout')  # İstek sayısını artırır
     logout_user()
     flash('Başarıyla çıkış yapıldı.', 'success')
     return redirect(url_for('auth.login'))
