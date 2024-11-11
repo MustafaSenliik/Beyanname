@@ -33,10 +33,10 @@
             padding: 10px;
             background-color: #f1f1f1;
             color: #343a40;
-            position: fixed;
+            position: relative;
             bottom: 0;
-            width: calc(100% - 250px); /* Sidebar genişliği kadar boşluk bırak */
-            left: 250px; /* Sidebar genişliği kadar sola kaydır */
+            width: calc(100% - 250px);
+            left: 250px;
         }
     </style>
 </head>
@@ -60,8 +60,6 @@
             </nav>
         </div>
         
-        
-
         <!-- Content -->
         <div class="content">
             <!-- Flash Messages -->
@@ -77,7 +75,6 @@
                 </div>
             {% endif %}
             {% endwith %}
-
 
             <div class="row">
                 <!-- Statistics Cards -->
@@ -110,25 +107,33 @@
                     <canvas id="monthlyUploadChart"></canvas>
                 </div>
             </div>
+
+            <!-- Yıllık Döviz Tutarı Grafik -->
+            <div class="row mt-5">
+                <div class="col-md-12">
+                    <h4>Döviz Tutarı Yıllık Bazda - TL/USD/GBP/CHF/EUR</h4>
+                    <canvas id="yearlyCurrencyChart"></canvas>
+                </div>
+            </div>
             
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
-                // Backend'den dinamik olarak verileri çekin
+                // Haftalık ve aylık dosya yükleme verilerini grafiklere çekme
                 fetch("{{ url_for('admin.get_upload_data') }}")
                     .then(response => response.json())
                     .then(data => {
                         const weeklyData = data.weekly;
                         const monthlyData = data.monthly;
-            
+
                         // Haftalık Dosya Yükleme Grafiği
                         const weeklyUploadCtx = document.getElementById('weeklyUploadChart').getContext('2d');
                         const weeklyUploadChart = new Chart(weeklyUploadCtx, {
                             type: 'bar',
                             data: {
-                                labels: Object.keys(weeklyData), // Kategoriler
+                                labels: Object.keys(weeklyData),
                                 datasets: [{
                                     label: 'Dosya Yükleme Sayısı',
-                                    data: Object.values(weeklyData), // Yükleme sayıları
+                                    data: Object.values(weeklyData),
                                     backgroundColor: 'rgba(54, 162, 235, 0.6)',
                                     borderColor: 'rgba(54, 162, 235, 1)',
                                     borderWidth: 1
@@ -143,7 +148,7 @@
                                 }
                             }
                         });
-            
+
                         // Aylık Dosya Yükleme Grafiği
                         const monthlyUploadCtx = document.getElementById('monthlyUploadChart').getContext('2d');
                         const monthlyUploadChart = new Chart(monthlyUploadCtx, {
@@ -162,6 +167,44 @@
                                     legend: {
                                         position: 'top'
                                     }
+                                }
+                            }
+                        });
+                    });
+
+                // Yıllık Döviz Tutarı Grafiği
+                fetch("{{ url_for('admin.get_currency_data') }}")
+                    .then(response => response.json())
+                    .then(data => {
+                        const labels = ["USD", "GBP", "CHF", "EUR"];
+                        const yearlyDovizData = labels.map(label => data.yearly[label]?.doviz || 0);
+                        const yearlyTlData = labels.map(label => data.yearly[label]?.tl || 0);
+
+                        const yearlyCurrencyChart = new Chart(document.getElementById('yearlyCurrencyChart').getContext('2d'), {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: [
+                                    {
+                                        label: 'Döviz Tutarı',
+                                        data: yearlyDovizData,
+                                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                        borderColor: 'rgba(54, 162, 235, 1)',
+                                        borderWidth: 1
+                                    },
+                                    {
+                                        label: 'TL Tutarı',
+                                        data: yearlyTlData,
+                                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                                        borderColor: 'rgba(75, 192, 192, 1)',
+                                        borderWidth: 1
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    y: { beginAtZero: true }
                                 }
                             }
                         });

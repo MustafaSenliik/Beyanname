@@ -5,6 +5,7 @@ from models import User
 from werkzeug.security import check_password_hash
 from extensions import db
 from services import admin_services
+from services.admin_services import get_yearly_currency_data, get_monthly_currency_data
 from services.metrics_service import increment_request_count, track_request_latency, increment_file_operation_errors
 from datetime import datetime, timedelta
 import pytz
@@ -210,3 +211,11 @@ def authorize_user():
     # Tüm kullanıcıları getir
     users = User.query.filter_by(is_deleted=False).all()
     return render_template('admin/authorize_user.html', users=users, ROLE_HIERARCHY=ROLE_HIERARCHY)
+
+@admin_blueprint.route('/admin/get_currency_data')
+def get_currency_data():
+    data = {
+        'yearly': get_yearly_currency_data(),
+        'monthly': get_monthly_currency_data()
+    }
+    return jsonify(data)

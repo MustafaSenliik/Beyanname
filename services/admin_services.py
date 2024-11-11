@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash
 from app import db
 from datetime import datetime, timedelta
 import pytz
-from sqlalchemy import func, and_
+from sqlalchemy import func, and_, extract
 
 
 def get_file_upload_count():
@@ -110,3 +110,37 @@ def get_monthly_upload_count():
         .all()
     )
     return dict(monthly_data)
+
+def get_yearly_currency_data():
+    current_year = datetime.now().year
+    yearly_data = (
+        db.session.query(
+            BeyannameKayitlari.doviz_cinsi,
+            func.sum(BeyannameKayitlari.doviz_tutari).label('total_doviz'),
+            func.sum(BeyannameKayitlari.tl_tutari).label('total_tl')
+        )
+        .filter(extract('year', BeyannameKayitlari.created_at) == current_year)
+        .group_by(BeyannameKayitlari.doviz_cinsi)
+        .all()
+    )
+    # Veriyi dictionary formatına dönüştürme
+    return {item.doviz_cinsi: {'doviz': item.total_doviz, 'tl': item.total_tl} for item in yearly_data}
+
+
+# Aylık döviz verisini döndüren fonksiyon
+def get_monthly_currency_data():
+    current_year = datetime.now().year
+    current_month = datetime.now().month
+    monthly_data = (
+        db.session.query(
+            BeyannameKayitlari.doviz_cinsi,
+            func.sum(BeyannameKayitlari.doviz_tutari).label('total_doviz'),
+            func.sum(BeyannameKayitlari.tl_tutari).label('total_tl')
+        )
+        .filter(extract('year', BeyannameKayitlari.created_at) == current_year)
+        .filter(extract('month', BeyannameKayitlari.created_at) == current_month)
+        .group_by(BeyannameKayitlari.doviz_cinsi)
+        .all()
+    )
+    # Veriyi dictionary formatına dönüştürme
+    return {item.doviz_cinsi: {'doviz': item.total_doviz, 'tl': item.total_tl} for item in monthly_data}
