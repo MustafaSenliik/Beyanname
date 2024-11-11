@@ -117,25 +117,26 @@
             <h2 class="text-center mb-4">İşlem Kayıtları</h2>
 
             <!-- Filtreleme Formu -->
-            <form action="{{ url_for('admin.log_records') }}" method="GET" class="mb-4">
-                <div class="row">
+            <form action="{{ url_for('admin.log_records') }}" method="GET" class="mb-4 p-4 rounded shadow-sm" style="background-color: #f8f9fa;">
+                <div class="row g-3">
                     <div class="col-md-3">
                         <label for="start_date" class="form-label">Başlangıç Tarihi</label>
-                        <input type="date" id="start_date" name="start_date" class="form-control">
+                        <input type="date" id="start_date" name="start_date" class="form-control border border-primary">
                     </div>
                     <div class="col-md-3">
                         <label for="end_date" class="form-label">Bitiş Tarihi</label>
-                        <input type="date" id="end_date" name="end_date" class="form-control">
+                        <input type="date" id="end_date" name="end_date" class="form-control border border-primary">
                     </div>
                     <div class="col-md-3">
                         <label for="user_name" class="form-label">Kullanıcı Adı</label>
-                        <input type="text" id="user_name" name="user_name" class="form-control" placeholder="Kullanıcı Adı">
+                        <input type="text" id="user_name" name="user_name" class="form-control border border-primary" placeholder="Kullanıcı Adı">
                     </div>
                     <div class="col-md-3 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100">Filtrele</button>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold" style="background-color: #007bff; border: none;">Filtrele</button>
                     </div>
                 </div>
             </form>
+
             
             <div class="table-container">
                 {% if logs %}
