@@ -144,10 +144,13 @@
 
         </div>
 
-        <!-- Arama Sonuçları -->
+                <!-- Arama Sonuçları -->
         {% if results is not none %}
-            {% if results %}
-                <h2 class="mt-5">Arama Sonuçları ({{ results|length }})</h2>
+        {% if results %}
+            <h2 class="mt-5">Arama Sonuçları ({{ results|length }})</h2>
+            
+            <!-- Tablo için yatay kaydırma kapsayıcısı -->
+            <div style="overflow-x: auto;">
                 <table class="table table-striped mt-3">
                     <thead class="table-dark">
                         <tr>
@@ -197,18 +200,18 @@
                                     <button type="submit" class="btn btn-danger" onclick="return confirmDelete()">Sil</button>
                                 </form>
                             </td>
-                            
                             {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>
-                    
                 </table>
-            {% else %}
-                <p class="mt-4">Sonuç bulunamadı.</p>
-            {% endif %}
+            </div> <!-- overflow-x kapsayıcı div sonu -->
+
+        {% else %}
+            <p class="mt-4">Sonuç bulunamadı.</p>
         {% endif %}
-    </div>
+        {% endif %}
+
     
         <!-- Footer -->
         <footer>
