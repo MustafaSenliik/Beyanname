@@ -28,6 +28,13 @@
         .flash-message {
             margin-bottom: 20px;
         }
+        .chart-container {
+            max-width: 600px; /* Grafik genişliğini sınırlandırın */
+            margin: auto;
+        }
+        canvas {
+            max-height: 400px; /* Grafiklerin yüksekliğini sınırlandırın */
+        }
         footer {
             text-align: center;
             padding: 10px;
@@ -98,24 +105,29 @@
 
             <!-- Charts Section -->
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-6 chart-container">
                     <h4>Son Bir Haftalık Dosya Yükleme Dağılımı</h4>
                     <canvas id="weeklyUploadChart"></canvas>
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-6 chart-container">
                     <h4>Son Bir Aylık Dosya Yükleme Dağılımı</h4>
                     <canvas id="monthlyUploadChart"></canvas>
                 </div>
             </div>
 
-            <!-- Yıllık Döviz Tutarı Grafik -->
+            <!-- Döviz Tutarı Yıllık ve Aylık Grafikler -->
             <div class="row mt-5">
-                <div class="col-md-12">
+                <div class="col-md-6 chart-container">
                     <h4>Döviz Tutarı Yıllık Bazda - TL/USD/GBP/CHF/EUR</h4>
                     <canvas id="yearlyCurrencyChart"></canvas>
                 </div>
+
+                <div class="col-md-6 chart-container">
+                    <h4>Döviz Tutarı Aylık Bazda - USD/GBP/CHF/EUR</h4>
+                    <canvas id="monthlyCurrencyChart"></canvas>
+                </div>
             </div>
-            
+
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
                 // Haftalık ve aylık dosya yükleme verilerini grafiklere çekme
@@ -141,6 +153,7 @@
                             },
                             options: {
                                 responsive: true,
+                                maintainAspectRatio: false,
                                 scales: {
                                     y: {
                                         beginAtZero: true
@@ -163,6 +176,7 @@
                             },
                             options: {
                                 responsive: true,
+                                maintainAspectRatio: false,
                                 plugins: {
                                     legend: {
                                         position: 'top'
@@ -203,6 +217,45 @@
                             },
                             options: {
                                 responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: { beginAtZero: true }
+                                }
+                            }
+                        });
+                    });
+
+                // Aylık Döviz Tutarı Grafiği
+                fetch("{{ url_for('admin.get_currency_data') }}")
+                    .then(response => response.json())
+                    .then(data => {
+                        const monthLabels = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+                        const currencyTypes = ["USD", "GBP", "CHF", "EUR"];
+                        
+                        // Döviz cinsine göre her ayın döviz tutarını hazırlama
+                        const datasets = currencyTypes.map((currency, index) => {
+                            // Her ay için döviz tutarını alıyoruz; eğer veri yoksa 0 olarak ayarlanır
+                            const dataForCurrency = monthLabels.map((_, monthIndex) => data.monthly[currency]?.[monthIndex + 1]?.doviz || 0);
+                            return {
+                                label: `${currency} Döviz Tutarı (Aylık)`,
+                                data: dataForCurrency,
+                                backgroundColor: `rgba(${54 + index * 50}, ${162 + index * 20}, ${235 - index * 40}, 0.6)`,
+                                borderColor: `rgba(${54 + index * 50}, ${162 + index * 20}, ${235 - index * 40}, 1)`,
+                                borderWidth: 1,
+                                fill: false
+                            };
+                        });
+
+                        // Aylık Döviz Tutarı Grafiği Oluşturma
+                        const monthlyCurrencyChart = new Chart(document.getElementById('monthlyCurrencyChart').getContext('2d'), {
+                            type: 'line',
+                            data: {
+                                labels: monthLabels, // Ay isimleri
+                                datasets: datasets   // Her döviz cinsi için veri setleri
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
                                 scales: {
                                     y: { beginAtZero: true }
                                 }
@@ -217,3 +270,4 @@
     <footer>2024 Dosya Yükleme Sistemi. Tüm hakları Tören Gıda San. ve Tic. A.Ş tarafından saklıdır.</footer>
 </body>
 </html>
+

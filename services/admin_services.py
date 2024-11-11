@@ -130,17 +130,28 @@ def get_yearly_currency_data():
 # Aylık döviz verisini döndüren fonksiyon
 def get_monthly_currency_data():
     current_year = datetime.now().year
-    current_month = datetime.now().month
     monthly_data = (
         db.session.query(
             BeyannameKayitlari.doviz_cinsi,
+            extract('month', BeyannameKayitlari.created_at).label('month'),
             func.sum(BeyannameKayitlari.doviz_tutari).label('total_doviz'),
             func.sum(BeyannameKayitlari.tl_tutari).label('total_tl')
         )
-        .filter(extract('year', BeyannameKayitlari.created_at) == current_year)
-        .filter(extract('month', BeyannameKayitlari.created_at) == current_month)
-        .group_by(BeyannameKayitlari.doviz_cinsi)
+        .filter(extract('year', BeyannameKayitlari.created_at) == current_year)  # Geçerli yıl filtresi
+        .group_by(BeyannameKayitlari.doviz_cinsi, 'month')
         .all()
     )
-    # Veriyi dictionary formatına dönüştürme
-    return {item.doviz_cinsi: {'doviz': item.total_doviz, 'tl': item.total_tl} for item in monthly_data}
+
+    # Veriyi frontend’e uygun hale getirmek için dictionary yapısına dönüştürme
+    data = {}
+    for item in monthly_data:
+        doviz_cinsi = item.doviz_cinsi
+        month = item.month
+        total_doviz = item.total_doviz
+        total_tl = item.total_tl
+
+        if doviz_cinsi not in data:
+            data[doviz_cinsi] = {}
+        data[doviz_cinsi][month] = {"doviz": total_doviz, "tl": total_tl}
+
+    return data
