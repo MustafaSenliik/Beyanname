@@ -141,7 +141,3 @@ Yeni bir dal (branch) oluşturun: git checkout -b özellik-adi.
 Değişikliklerinizi işleyin: git commit -m 'Özellik ekle'.
 Dalınıza push edin: git push origin özellik-adi.
 Bir Pull Request gönderin.
-
-## 📜 Lisans
-Bu proje MIT Lisansı altında lisanslanmıştır.
-
