@@ -8,7 +8,9 @@ RUN apt-get update && apt-get install -y netcat-openbsd && apt-get clean
 
 # Gereksinim dosyasını kopyala ve yükle
 COPY requirements.txt requirements.txt
+COPY wait-for-it.sh .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN chmod +x wait-for-it.sh
 
 # Tüm dosyaları kopyala
 COPY . .
