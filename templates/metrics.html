@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/static/images/global_Toren-logo.png" type="image/png"/>
+    <title>Metrikler Tablosu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Metrikler Tablosu</h1>
+    <table>
+        <tr>
+            <th>Metik Adı</th>
+            <th>Değer</th>
+        </tr>
+        {% for metric in metrics_data %}
+        <tr>
+            <td>{{ metric.name }}</td>
+            <td>{{ metric.value }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
