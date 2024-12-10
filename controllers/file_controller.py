@@ -33,7 +33,7 @@ def upload_file():
 @track_request_latency('/delete')  # Gecikme süresini otomatik olarak izler
 def delete_file(file_id):
     increment_request_count('/delete')  # İstek sayısını artırır
-    if current_user.rol not in ['patron', 'müdür', 'müdür_yardımcısı']:
+    if current_user.rol not in ['patron', 'müdür', 'müdür_yardımcısı','admin']:
         flash('Dosya silme yetkiniz yok.', 'danger')
         return redirect(url_for('search.search_page'))
 
