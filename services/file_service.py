@@ -24,7 +24,7 @@ def upload_file_service(request, current_user):
         # Mevcut dosya kontrolü
         existing_record = BeyannameKayitlari.query.filter_by(kodu=kodu).first()
         if existing_record:
-            return False  # Mesajı controller katmanına bırakın
+            raise ValueError(f"'{kodu}' kodlu bir kayıt zaten mevcut.")  # Özel hata
 
         # Dosya verisini oku ve yeni kayıt oluştur
         file_data = atr_belgesi.read()
@@ -57,9 +57,12 @@ def upload_file_service(request, current_user):
         db.session.commit()  # Tüm işlemleri aynı transaction içinde kaydet
         return True
 
+    except ValueError as ve:
+        raise ve  # Aynı kod hatasını üst katmana iletir
     except Exception as e:
         db.session.rollback()  # Hata durumunda işlemi geri al
-        return False
+        raise e
+
 
 def delete_file_service(file_id, current_user):
     try:

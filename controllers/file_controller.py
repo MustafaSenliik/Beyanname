@@ -18,15 +18,19 @@ def upload_file():
             return redirect(request.url)
 
         try:
-            upload_file_service(request, current_user)
-            increment_file_upload()  # Başarılı dosya yükleme sayısını artırır
-            flash('Dosya başarıyla yüklendi.', 'success')
+            success = upload_file_service(request, current_user)
+            if success:
+                increment_file_upload()  # Başarılı dosya yükleme sayısını artırır
+                flash('Dosya başarıyla yüklendi.', 'success')
+        except ValueError as ve:
+            flash(str(ve), 'warning')  # Aynı kod hatası
         except Exception as e:
             increment_file_operation_errors('upload')  # Yükleme işlemi hata sayısını artırır
-            flash(f'Dosya yüklenirken hata oluştu: {str(e)}', 'danger')
+            flash(f'Dosya yüklenirken beklenmeyen bir hata oluştu: {str(e)}', 'danger')
         return redirect(request.url)
 
     return render_template('upload.html')
+
 
 @file_bp.route('/delete/<int:file_id>', methods=['POST'])
 @login_required
