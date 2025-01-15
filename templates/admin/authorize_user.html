@@ -22,6 +22,10 @@
         .sidebar a:hover {
             background-color: #495057;
         }
+        .sidebar .nav-link.active {
+            background-color: #007bff;
+            color: white;
+        }
         .content {
             margin-left: 550px; /* Attığınız kodda belirtilen margin değeri */
             padding: 80px; /* Attığınız kodda belirtilen padding değeri */
@@ -72,8 +76,9 @@
                     <a href="{{ url_for('admin.delete_user_page') }}" class="nav-link"><i class="fas fa-user-times me-2"></i>Kullanıcı Silme</a>
                 {% endif %}
         
-                <a href="{{ url_for('admin.authorize_user') }}" class="nav-link"><i class="fas fa-user-shield me-2"></i>Yetkilendirme</a>
+                <a href="{{ url_for('admin.authorize_user') }}" class="nav-link active"><i class="fas fa-user-shield me-2"></i>Yetkilendirme</a>
                 <a href="{{ url_for('admin.log_records') }}" class="nav-link"><i class="fas fa-file-alt me-2"></i>İşlem Kayıtları</a>
+                <a href="{{ url_for('admin.edit_file') }}" class="nav-link"><i class="fas fa-edit me-2"></i>Dosya Düzenle</a>
                 <a href="{{ url_for('file.upload_file') }}" class="nav-link"><i class="fas fa-arrow-left me-2"></i>Sisteme Git</a>
                 <a href="{{ url_for('auth.logout') }}" class="nav-link text-danger"><i class="fas fa-sign-out-alt me-2"></i>Çıkış Yap</a>
             </nav>

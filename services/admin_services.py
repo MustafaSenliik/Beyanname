@@ -155,3 +155,27 @@ def get_monthly_currency_data():
         data[doviz_cinsi][month] = {"doviz": total_doviz, "tl": total_tl}
 
     return data
+
+def update_beyanname(kodu, intac_tarihi):
+    """
+    Verilen kodu'ya göre İntaç Tarihini günceller.
+    """
+    beyanname = BeyannameKayitlari.query.filter_by(kodu=kodu).first()
+    if not beyanname:
+        raise ValueError(f"Beyanname kaydı bulunamadı. Kodu: {kodu}")
+    
+    # İntaç tarihini güncelle
+    beyanname.intac_tarihi = intac_tarihi
+    db.session.commit()
+    return beyanname
+
+def get_beyanname_by_kodu(kodu):
+    """
+    Verilen kodu'ya göre beyanname kaydını getirir.
+    """
+    beyanname = BeyannameKayitlari.query.filter_by(kodu=kodu).first()
+    if not beyanname:
+        raise ValueError(f"Beyanname kaydı bulunamadı. Kodu: {kodu}")
+    return beyanname
+
+

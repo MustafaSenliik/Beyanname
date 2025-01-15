@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dosya Düzenle</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .sidebar {
+            width: 250px;
+            background-color: #343a40;
+            color: white;
+            position: fixed;
+            height: 100vh;
+        }
+        .sidebar a {
+            color: white;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+        .sidebar .nav-link.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .content {
+            margin-left: 500px;
+            padding: 20px;
+            width: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100h;
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px; /* 1000px yerine 1200px gibi bir değer kullanarak genişletebiliriz */
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 0;
+        }
+
+        .form-label {
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #343a40;
+            color: #ffffff;
+            position: fixed;
+            bottom: 0;
+            width: calc(100% - 250px);
+            left: 250px;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar p-3">
+            <h4 class="text-center">Yönetici Paneli</h4>
+            <nav class="nav flex-column">
+                <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="fas fa-home me-2"></i>İstatistikler</a>
+                <a href="{{ url_for('admin.user_management') }}" class="nav-link"><i class="fas fa-user-plus me-2"></i>Kullanıcı Ekleme</a>
+
+                {% if current_user.rol == 'admin' %}
+                    <a href="{{ url_for('admin.delete_user_page') }}" class="nav-link"><i class="fas fa-user-times me-2"></i>Kullanıcı Silme</a>
+                {% endif %}
+
+                <a href="{{ url_for('admin.authorize_user') }}" class="nav-link"><i class="fas fa-user-shield me-2"></i>Yetkilendirme</a>
+                <a href="{{ url_for('admin.log_records') }}" class="nav-link"><i class="fas fa-file-alt me-2"></i>İşlem Kayıtları</a>
+                <a href="{{ url_for('admin.edit_file') }}" class="nav-link active"><i class="fas fa-edit me-2"></i>Dosya Düzenle</a>
+                <a href="{{ url_for('file.upload_file') }}" class="nav-link"><i class="fas fa-arrow-left me-2"></i>Sisteme Git</a>
+                <a href="{{ url_for('auth.logout') }}" class="nav-link text-danger"><i class="fas fa-sign-out-alt me-2"></i>Çıkış Yap</a>
+            </nav>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="container mt-5">
+                <h2 class="text-center mb-4">Dosya Düzenle</h2>
+
+                <!-- Flash Mesajlar -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Arama Formu -->
+                <form action="{{ url_for('admin.edit_file') }}" method="GET" class="mb-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="kodu" placeholder="Dosya kodu girin" required>
+                        <button type="submit" class="btn btn-primary">Ara</button>
+                    </div>
+                </form>
+
+                {% if file %} <!-- Eğer dosya bulunduysa düzenleme formunu göster -->
+                <form action="{{ url_for('admin.edit_file', kodu=file.kodu) }}" method="POST">
+                    <!-- Kodu -->
+                    <div class="mb-3">
+                        <label for="kodu" class="form-label">Kodu:</label>
+                        <input type="text" class="form-control" name="kodu" value="{{ file.kodu }}" readonly> <!-- disabled yerine readonly -->
+                    </div>
+
+                    <!-- Ürün Adı -->
+                    <div class="mb-3">
+                        <label for="urun_adi" class="form-label">Ürün Adı:</label>
+                        <input type="text" class="form-control" name="urun_adi" value="{{ file.urun_adi }}" disabled>
+                    </div>
+
+                    <!-- Cari Adı -->
+                    <div class="mb-3">
+                        <label for="cari_adi" class="form-label">Cari Adı:</label>
+                        <input type="text" class="form-control" name="cari_adi" value="{{ file.cari_adi }}" disabled>
+                    </div>
+
+                    <!-- GGB Tarihi -->
+                    <div class="mb-3">
+                        <label for="ggb_tarihi" class="form-label">GGB Tarihi:</label>
+                        <input type="date" class="form-control" name="ggb_tarihi" value="{{ file.ggb_tarihi }}" disabled>
+                    </div>
+
+                    <!-- İntaç Tarihi -->
+                    <div class="mb-3">
+                        <label for="intac_tarihi" class="form-label">İntaç Tarihi:</label>
+                        <input type="date" class="form-control" name="intac_tarihi" value="{{ file.intac_tarihi }}">
+                    </div>
+
+                    <!-- Kategori -->
+                    <div class="mb-3">
+                        <label for="kategori" class="form-label">Kategori:</label>
+                        <input type="text" class="form-control" name="kategori" value="{{ file.kategori }}" disabled>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Güncelle</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <footer>2024 Dosya Yükleme Sistemi. Tüm hakları Tören Gıda San. ve Tic. A.Ş tarafından saklıdır.</footer>
+</body>
+</html>

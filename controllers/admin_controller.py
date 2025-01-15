@@ -5,7 +5,7 @@ from models import User
 from werkzeug.security import check_password_hash
 from extensions import db
 from services import admin_services
-from services.admin_services import get_yearly_currency_data, get_monthly_currency_data
+from services.admin_services import get_yearly_currency_data, get_monthly_currency_data, get_beyanname_by_kodu, update_beyanname
 from services.metrics_service import increment_request_count, track_request_latency, increment_file_operation_errors
 from datetime import datetime, timedelta
 import pytz
@@ -219,3 +219,47 @@ def get_currency_data():
         'monthly': get_monthly_currency_data()
     }
     return jsonify(data)
+
+@admin_blueprint.route('/edit_file', methods=['GET', 'POST'])
+@login_required
+def edit_file():
+    """
+    Dosya arama ve düzenleme işlemlerini aynı sayfada gerçekleştirir.
+    """
+    beyanname = None
+
+    if request.method == 'POST':
+        # Düzenleme işlemi
+        kodu = request.form.get('kodu')  # POST'tan gelen kodu al
+
+        if not kodu:
+            flash('Kodu alınamadı. Lütfen formu doğru şekilde doldurduğunuzdan emin olun.', 'danger')
+            return redirect(url_for('admin.edit_file'))
+
+        try:
+            intac_tarihi = request.form.get('intac_tarihi')
+            # Beyanname kaydını güncelle
+            update_beyanname(kodu, intac_tarihi)
+            flash('Beyanname kaydı başarıyla güncellendi.', 'success')
+            return redirect(url_for('admin.edit_file') + f"?kodu={kodu}")
+        except ValueError as e:
+            flash(f'Hata: {str(e)}', 'danger')
+        except Exception as e:
+            flash(f'Bilinmeyen bir hata oluştu: {str(e)}', 'danger')
+
+    elif request.method == 'GET':
+        # Arama işlemi
+        kodu = request.args.get('kodu')
+        if kodu:
+            try:
+                beyanname = get_beyanname_by_kodu(kodu)
+            except ValueError as e:
+                flash(f'Hata: {str(e)}', 'danger')
+
+    # Şablonu render et
+    return render_template('admin/edit_file.html', file=beyanname)
+
+
+
+
+
