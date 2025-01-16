@@ -76,6 +76,14 @@
             width: calc(100% - 250px);
             left: 250px;
         }
+        .modal-content {
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .modal-header {
+            background-color: #343a40;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -129,11 +137,11 @@
                 </form>
 
                 {% if file %} <!-- Eğer dosya bulunduysa düzenleme formunu göster -->
-                <form action="{{ url_for('admin.edit_file', kodu=file.kodu) }}" method="POST">
+                <form id="editForm" action="{{ url_for('admin.edit_file', kodu=file.kodu) }}" method="POST">
                     <!-- Kodu -->
                     <div class="mb-3">
                         <label for="kodu" class="form-label">Kodu:</label>
-                        <input type="text" class="form-control" name="kodu" value="{{ file.kodu }}" readonly> <!-- disabled yerine readonly -->
+                        <input type="text" class="form-control" name="kodu" value="{{ file.kodu }}" readonly>
                     </div>
 
                     <!-- Ürün Adı -->
@@ -166,14 +174,41 @@
                         <input type="text" class="form-control" name="kategori" value="{{ file.kategori }}" disabled>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100">Güncelle</button>
+                    <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#confirmationModal">
+                        Güncelle
+                    </button>
                 </form>
                 {% endif %}
             </div>
         </div>
     </div>
 
+    <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel">Onay Gerekli</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Bu değişikliği yapmak istediğinize emin misiniz?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" id="confirmSubmit" class="btn btn-primary">Evet, Güncelle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer>2024 Dosya Yükleme Sistemi. Tüm hakları Tören Gıda San. ve Tic. A.Ş tarafından saklıdır.</footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Modal üzerindeki "Evet, Güncelle" butonuna tıklanınca form gönder
+        document.getElementById('confirmSubmit').addEventListener('click', function() {
+            document.getElementById('editForm').submit();
+        });
+    </script>
     <script>
         setTimeout(function() {
             var alerts = document.querySelectorAll('.alert');
@@ -184,7 +219,7 @@
                     alert.remove();
                 }, 300); // Animasyon süresi
             });
-        }, 4000); // Flash mesaj 5 saniye sonra kaybolur
+        }, 4000);
     </script>
 </body>
 </html>
