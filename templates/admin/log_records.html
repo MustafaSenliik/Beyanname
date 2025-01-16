@@ -65,6 +65,14 @@
             font-weight: bold;
             transition: background 0.3s ease;
         }
+        .logo-container {
+            text-align: center;
+            margin-top: 300px;
+            margin-bottom: 20px;
+        }
+        .logo-container img {
+            max-width: 120px;
+        }
         .btn-primary:hover {
             background-color: #0056b3;
         }
@@ -101,6 +109,9 @@
                 <a href="{{ url_for('admin.edit_file') }}" class="nav-link"><i class="fas fa-edit me-2"></i>Dosya Düzenle</a>
                 <a href="{{ url_for('file.upload_file') }}" class="nav-link"><i class="fas fa-arrow-left me-2"></i>Sisteme Git</a>
                 <a href="{{ url_for('auth.logout') }}" class="nav-link text-danger"><i class="fas fa-sign-out-alt me-2"></i>Çıkış Yap</a>
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='images/global_Toren-logo.png') }}" alt="Tören Gıda A.Ş Logo">
+                </div>
             </nav>
         </div>
         

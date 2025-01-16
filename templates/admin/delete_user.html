@@ -29,6 +29,14 @@
         .table {
             width: 100%; /* Tabloyu genişlet */
         }
+        .logo-container {
+            text-align: center;
+            margin-top: 300px;
+            margin-bottom: 20px;
+        }
+        .logo-container img {
+            max-width: 120px;
+        }
         .flash-message { margin-bottom: 20px; }
         .btn-sm { margin-top: 10px; }
         footer {
@@ -62,6 +70,9 @@
                 <a href="{{ url_for('admin.edit_file') }}" class="nav-link"><i class="fas fa-edit me-2"></i>Dosya Düzenle</a>
                 <a href="{{ url_for('file.upload_file') }}" class="nav-link"><i class="fas fa-arrow-left me-2"></i>Sisteme Git</a>
                 <a href="{{ url_for('auth.logout') }}" class="nav-link text-danger"><i class="fas fa-sign-out-alt me-2"></i>Çıkış Yap</a>
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='images/global_Toren-logo.png') }}" alt="Tören Gıda A.Ş Logo">
+                </div>
             </nav>
         </div>
         
