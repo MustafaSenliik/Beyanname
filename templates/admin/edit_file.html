@@ -41,17 +41,21 @@
             justify-content: center;
             align-items: flex-start;
             height: 100h;
+            overflow-x: auto;
+            overflow-y: auto;
         }
         .container {
             width: 100%;
-            max-width: 1200px; /* 1000px yerine 1200px gibi bir değer kullanarak genişletebiliriz */
+            max-width: 100%; 
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
             margin-top: 0;
+            max-height: 80vh;
+            overflow-x: auto;
+            overflow-y: auto;
         }
-
         .form-label {
             font-weight: bold;
         }
@@ -105,14 +109,16 @@
 
                 <!-- Flash Mesajlar -->
                 {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }}" role="alert">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
                 {% endwith %}
+
 
                 <!-- Arama Formu -->
                 <form action="{{ url_for('admin.edit_file') }}" method="GET" class="mb-4">
@@ -168,5 +174,17 @@
     </div>
 
     <footer>2024 Dosya Yükleme Sistemi. Tüm hakları Tören Gıda San. ve Tic. A.Ş tarafından saklıdır.</footer>
+    <script>
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                alert.classList.remove('show');
+                alert.classList.add('fade');
+                setTimeout(function() {
+                    alert.remove();
+                }, 300); // Animasyon süresi
+            });
+        }, 4000); // Flash mesaj 5 saniye sonra kaybolur
+    </script>
 </body>
 </html>
