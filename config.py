@@ -2,7 +2,7 @@ import os
 
 # Çevresel değişkenlerden veritabanı bağlantısını al, eğer bulunmazsa localhost'a bağlan
 SQLALCHEMY_DATABASE_URI = os.getenv(
-    'DATABASE_URL', 'mysql+pymysql://root:root@localhost:3306/toren'
+    'DATABASE_URL', 'mysql+pymysql://root:root@beyanname_db:3306/toren'
 )
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SECRET_KEY = os.urandom(24)
