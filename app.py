@@ -33,7 +33,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=15)  # Session sür
 
 # Redis session yapılandırması
 app.config['SESSION_TYPE'] = 'redis'
-app.config['SESSION_REDIS'] = Redis.from_url(os.getenv('REDIS_URL', 'redis://localhost:6379/0'))
+app.config['SESSION_REDIS'] = Redis.from_url(os.getenv('REDIS_URL', 'redis://beyanname_redis:6379/0'))
 app.config['SESSION_PERMANENT'] = False  # Session'ı kalıcı olmayan şekilde ayarla
 app.config['SESSION_USE_SIGNER'] = False
 app.config['SESSION_COOKIE_HTTPONLY'] = True
