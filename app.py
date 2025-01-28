@@ -10,6 +10,15 @@ from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from flask_session import Session
 from redis import Redis
 from flask_login import login_required
+import logging
+import sys
+
+# Logging konfigürasyonu
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
 
 # Controller Blueprint'lerini yükleyin
 from controllers.auth_controller import auth_bp
