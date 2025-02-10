@@ -16,8 +16,8 @@ def upload_file_service(request, current_user):
         doviz_tutari = request.form.get('doviz_tutari')
         tl_tutari = request.form.get('tl_tutari')
         gumruk = request.form.get('gumruk')
-        intac_tarihi = request.form.get('intac_tarihi')
-        ggb_tarihi = request.form.get('ggb_tarihi')
+        intac_tarihi = request.form.get("intac_tarihi", "").strip() or None
+        ggb_tarihi = request.form.get("ggb_tarihi", "").strip() or None
         kategori = request.form.get('kategori')
         atr_belgesi = request.files.get('pdf_dosyasi')
 
