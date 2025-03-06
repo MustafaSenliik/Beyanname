@@ -154,6 +154,7 @@
                 <table class="table table-striped mt-3">
                     <thead class="table-dark">
                         <tr>
+                            <th>#</th>
                             <th>Kodu</th>
                             <th>Ürün Adı</th>
                             <th>Cari Adı</th>
@@ -177,6 +178,7 @@
                     <tbody>
                         {% for file in results %}
                         <tr>
+                            <td>{{ loop.index }}</td>
                             <td>{{ file.kodu }}</td>
                             <td>{{ file.urun_adi }}</td>
                             <td>{{ file.cari_adi }}</td>
@@ -235,6 +237,39 @@
             function confirmDelete() {
                 return confirm('Bu dosyayı silmek istediğinizden emin misiniz?');
             }
+
+            function formatNumber(number) {
+                if (number === null || number === undefined) return '';
+                return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+                             .replace('.', ',');
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const miktarCells = document.querySelectorAll('td:nth-child(6)');
+                const dovizTutariCells = document.querySelectorAll('td:nth-child(9)');
+                const tlTutariCells = document.querySelectorAll('td:nth-child(10)');
+
+                miktarCells.forEach(cell => {
+                    const value = parseFloat(cell.textContent);
+                    if (!isNaN(value)) {
+                        cell.textContent = formatNumber(value.toFixed(2));
+                    }
+                });
+
+                dovizTutariCells.forEach(cell => {
+                    const value = parseFloat(cell.textContent);
+                    if (!isNaN(value)) {
+                        cell.textContent = formatNumber(value.toFixed(2));
+                    }
+                });
+
+                tlTutariCells.forEach(cell => {
+                    const value = parseFloat(cell.textContent);
+                    if (!isNaN(value)) {
+                        cell.textContent = formatNumber(value.toFixed(2));
+                    }
+                });
+            });
         </script>
     </body>
     </html>
